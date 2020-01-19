@@ -15,9 +15,16 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
+    - name: Install windows-build-tools on Windows
+      if: matrix.os == 'windows-latest'
+      shell: powershell
       run: |
-        npm ci
+        npm install --global node-gyp@latest
+        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+    - name: npm upgrade, install, build, and test
+      run: |
+        npm install -g npm
+        npm ci --no-optional
         npm run build --if-present
         npm test
       env:
